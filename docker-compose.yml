@@ -1,0 +1,44 @@
+version: '3'
+services:
+  certbot-auto:
+    build: certbot-cloudflare-auto/
+    volumes:
+      - letsencrypt-etc:/etc/letsencrypt
+      - letsencrypt-lib:/var/lib/letsencrypt
+    restart: always
+    environment:
+      EMAIL: "${CF_EMAIL}"
+      API_KEY: "${CF_API_KEY}"
+    command:
+      - "certonly"
+      - "--agree-tos"
+      - "-d"
+      - "${DOMAIN}"
+      - "-m"
+      - "${LE_EMAIL}"
+      - "--dns-cloudflare"
+      - "--dns-cloudflare-credentials=/etc/cloudflare_credentials.ini"
+      - "-n"
+
+  nextcloud:
+    image: nextcloud
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html
+
+  nginx:
+    image: nginx
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/conf.template
+      - letsencrypt-etc:/etc/letsencrypt
+    ports:
+      - "${HTTPS_LISTEN_ADDR}:443:443"
+    environment:
+      DOMAIN: "${DOMAIN}"
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
+
+volumes:
+  nextcloud:
+  letsencrypt-etc:
+  letsencrypt-lib:

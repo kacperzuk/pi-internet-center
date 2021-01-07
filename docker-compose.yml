@@ -1,5 +1,14 @@
 version: '3'
 services:
+  cloudflare-dyndns:
+    build: cloudflare-dyndns/
+    restart: always
+    environment:
+      CF_EMAIL: "${CF_EMAIL}"
+      CF_API_KEY: "${CF_API_KEY}"
+      CF_DOMAIN: "${CF_DOMAIN}"
+      CF_RECORD: "${CF_RECORD}"
+
   certbot-auto:
     build: certbot-cloudflare-auto/
     volumes:

@@ -4,8 +4,7 @@ services:
     build: cloudflare-dyndns/
     restart: always
     environment:
-      CF_EMAIL: "${CF_EMAIL}"
-      CF_API_KEY: "${CF_API_KEY}"
+      CF_API_TOKEN: "${CF_API_TOKEN}"
       CF_DOMAIN: "${CF_DOMAIN}"
       CF_RECORD: "${CF_RECORD}"
 
@@ -16,8 +15,7 @@ services:
       - letsencrypt-lib:/var/lib/letsencrypt
     restart: always
     environment:
-      EMAIL: "${CF_EMAIL}"
-      API_KEY: "${CF_API_KEY}"
+      CF_API_TOKEN: "${CF_API_TOKEN}"
     command:
       - "certonly"
       - "--agree-tos"

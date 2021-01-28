@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -exuo pipefail
 
@@ -9,8 +9,7 @@ function cf {
   shift
   curl -sS \
        -H "Content-Type:application/json" \
-       -H "X-Auth-Email: $CF_EMAIL" \
-       -H "X-Auth-Key: $CF_API_KEY" \
+       -H "Authorization: Bearer $CF_API_TOKEN" \
        -X "$method" "$path" "$@"
 }
  

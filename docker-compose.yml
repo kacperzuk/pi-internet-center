@@ -1,5 +1,13 @@
 version: '3'
 services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "${PG_PASS}"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
   cloudflare-dyndns:
     build: cloudflare-dyndns/
     restart: always
@@ -15,7 +23,7 @@ services:
       - letsencrypt-lib:/var/lib/letsencrypt
     restart: always
     environment:
-      CF_API_TOKEN: "${CF_API_TOKEN}"
+      API_TOKEN: "${CF_API_TOKEN}"
     command:
       - "certonly"
       - "--agree-tos"
@@ -30,6 +38,9 @@ services:
   nextcloud:
     image: nextcloud
     restart: always
+    environment:
+      TRUSTED_PROXIES: nginx
+      APACHE_DISABLE_REWRITE_IP: 1
     volumes:
       - nextcloud:/var/www/html
 
@@ -40,12 +51,17 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/conf.template
       - letsencrypt-etc:/etc/letsencrypt
     ports:
-      - "${HTTPS_LISTEN_ADDR}:443:443"
+      - "${HTTPS_LISTEN_ADDR}:8443:443"
     environment:
       DOMAIN: "${DOMAIN}"
     command: /bin/bash -c "envsubst '$${DOMAIN}' < /etc/nginx/conf.d/conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
 
 volumes:
   nextcloud:
+    external: true
   letsencrypt-etc:
+    external: true
   letsencrypt-lib:
+    external: true
+  postgres:
+    external: true

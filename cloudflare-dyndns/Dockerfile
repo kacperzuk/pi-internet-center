@@ -3,6 +3,7 @@ FROM alpine
 RUN apk add jq curl
 RUN mkdir /app
 WORKDIR /app
-COPY loop.sh update.sh /app/
+COPY loop.sh /app/
+COPY update.sh /app/
 
-CMD ./loop.sh
+CMD /app/loop.sh

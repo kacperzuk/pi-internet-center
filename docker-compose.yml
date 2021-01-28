@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: postgres
+    image: postgres:alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: "${PG_PASS}"
@@ -35,26 +35,48 @@ services:
       - "--dns-cloudflare-credentials=/etc/cloudflare_credentials.ini"
       - "-n"
 
-  nextcloud:
-    image: nextcloud
+  redis:
+    image: redis:alpine
     restart: always
+
+  nextcloud:
+    image: nextcloud:fpm-alpine
+    restart: always
+    depends_on:
+      - postgres
+      - redis
     environment:
-      TRUSTED_PROXIES: nginx
-      APACHE_DISABLE_REWRITE_IP: 1
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${PG_PASS}"
+      REDIS_HOST: redis
+    volumes:
+      - nextcloud:/var/www/html
+
+  nextcloud_cron:
+    image: nextcloud:fpm-alpine
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: /cron.sh
     volumes:
       - nextcloud:/var/www/html
 
   nginx:
-    image: nginx
+    image: nginx:alpine
     restart: always
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/conf.template
+      - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template
       - letsencrypt-etc:/etc/letsencrypt
+      - nextcloud:/var/www/html:ro
     ports:
       - "${HTTPS_LISTEN_ADDR}:8443:443"
     environment:
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
       DOMAIN: "${DOMAIN}"
-    command: /bin/bash -c "envsubst '$${DOMAIN}' < /etc/nginx/conf.d/conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
+
 
 volumes:
   nextcloud:

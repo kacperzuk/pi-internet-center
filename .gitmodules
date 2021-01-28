@@ -1,6 +1,3 @@
-[submodule "certbot-cloudflare"]
-	path = certbot-cloudflare
-	url = https://github.com/kacperzuk/certbot-cloudflare.git
 [submodule "certbot-cloudflare-auto"]
 	path = certbot-cloudflare-auto
 	url = https://github.com/kacperzuk/certbot-cloudflare-auto.git

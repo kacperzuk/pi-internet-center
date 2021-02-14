@@ -77,6 +77,29 @@ services:
       NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
       DOMAIN: "${DOMAIN}"
 
+  onlyoffice:
+    image: onlyoffice/documentserver
+    restart: always
+    depends_on:
+      - onlyoffice-postgres
+      - rabbitmq
+    environment:
+      DB_HOST: onlyoffice-postgres
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PWD: "${PG_PASS}"
+      DB_PORT: 5432
+      AMQP_URI: amqp://guest:guest@rabbitmq
+
+  onlyoffice-postgres:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "${PG_PASS}"
+
+  rabbitmq:
+    image: rabbitmq
+    restart: always
 
 volumes:
   nextcloud:
@@ -87,3 +110,4 @@ volumes:
     external: true
   postgres:
     external: true
+  

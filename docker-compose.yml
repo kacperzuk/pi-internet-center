@@ -40,7 +40,7 @@ services:
     restart: always
 
   nextcloud:
-    image: nextcloud:fpm-alpine
+    build: nextcloud-ffmpeg/
     restart: always
     depends_on:
       - postgres
